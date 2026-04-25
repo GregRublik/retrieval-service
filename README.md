@@ -1,0 +1,19 @@
+# RETRIEVAL-SERVICE 
+- Сервис для работы с документами, их загрузка и хранение в S3, а также сохранение metadata документов
+
+```mermaid
+graph TD
+    K[evaluator-service]
+    
+    
+    F[bot-service] --> c[orchestrator-service]  
+    c <--1--> B[INGESTION-SERVICE] 
+    c <--2--> G[retrieval-service]
+    c <--3--> E[reranker-service]
+    c <--4--> I[generation-service]
+    I --5--> F
+    
+    
+    style c fill:#f9f,stroke:#333,stroke-width:4px,color:#000
+    style G fill:#00ff08,stroke:#014a04,stroke-width:2px,color:#000
+```
