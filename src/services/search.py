@@ -22,20 +22,21 @@ class SearchService:
             self,
             payload: SearchRequest,
     ) -> SearchResponse:
-        # 1. нормализация запроса
-        query = await self.query_service.rewrite(payload.query)
 
-        # 2. эмбеддинг
-        vector = await self.embedding_service.embed_query(payload.query)
+        # 1. Нормализация запроса
+        normalized_query = await self.query_service.rewrite(payload.query)
+
+        # 2. Векторизация
+        vector = await self.embedding_service.embed_query(normalized_query)
 
         # 3. поиск
-        results = await self.qdrant_repository.search(
-            vector=vector,
-            top_k=top_k,
-            filters=filters,
+        return await self.qdrant_repository.search(
+            VectorSearchRequest(
+                vector=vector,
+                top_k=payload.top_k,
+                filters=payload.filters
+            )
         )
-
-        return results
 
     async def search_by_vector(
         self,

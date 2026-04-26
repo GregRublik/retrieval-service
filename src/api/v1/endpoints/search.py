@@ -10,7 +10,6 @@ async def search(
         payload: SearchRequest,
         search_service: SearchService = Depends(get_search_service),
 ):
-    # query, top_k, filters
     return await search_service.search(payload)
 
 
