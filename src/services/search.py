@@ -30,12 +30,15 @@ class SearchService:
         vector = await self.embedding_service.embed_query(normalized_query)
 
         # 3. поиск
-        return await self.qdrant_repository.search(
+        results = await self.qdrant_repository.search(
             VectorSearchRequest(
-                vector=vector,
+                vector=vector[0],
                 top_k=payload.top_k,
                 filters=payload.filters
             )
+        )
+        return SearchResponse(
+            results=results,
         )
 
     async def search_by_vector(

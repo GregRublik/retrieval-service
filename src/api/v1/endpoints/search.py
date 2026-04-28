@@ -5,7 +5,7 @@ from schemas.search import SearchRequest, SearchResponse
 
 router = APIRouter(prefix="/search")
 
-@router.get("/", response_model=SearchResponse)
+@router.post("/", response_model=SearchResponse)
 async def search(
         payload: SearchRequest,
         search_service: SearchService = Depends(get_search_service),

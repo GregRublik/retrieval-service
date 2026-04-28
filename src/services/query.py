@@ -5,7 +5,6 @@ from services.embedding import EmbeddingService
 from services.assistant import LLMService
 
 
-
 class QueryService:
 
     def __init__(self, llm_service: LLMService) -> None:
@@ -20,7 +19,7 @@ class QueryService:
         # query = self._normalize_structure(query)
 
         if rephrase:
-            query = await self._llm_rewrite(query)
+            query = await self._llm_rewrite(normalized_query)
 
         return query
 

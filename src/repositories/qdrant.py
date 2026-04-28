@@ -1,6 +1,30 @@
 from schemas.search import VectorSearchRequest
+from qdrant_client import AsyncQdrantClient
+from config import settings
+from schemas.search import SearchResult
 
 class QdrantRepository:
 
-    async def search(self, payload: VectorSearchRequest):
-        pass
+    def __init__(self, client: AsyncQdrantClient) -> None:
+        self.client = client
+
+    async def search(self, payload: VectorSearchRequest) -> SearchResult:
+
+        points = await self.client.query_points(
+            collection_name=settings.vdb.collection_name,
+            query=payload.vector,
+            # query_filter=Filter(
+            #     must=[FieldCondition(key="city", match=MatchValue(value="London"))]
+            # ),
+            with_payload=True,
+            limit=10
+        ).points
+
+        print(points)
+
+        return SearchResult(
+            id=1,
+            score=1,
+            content="sdf",
+            metadata={}
+        )
