@@ -7,8 +7,8 @@ graph TD
     
     
     F[bot-service] --> c[orchestrator-service]  
-    c <--1--> B[INGESTION-SERVICE] 
-    c <--2--> G[retrieval-service]
+    c <--1--> B[ingestion-service] 
+    c <--2--> G[RETRIEVAL-SERVICE]
     c <--3--> E[reranker-service]
     c <--4--> I[generation-service]
     I --5--> F
