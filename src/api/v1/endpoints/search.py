@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from depends import get_search_service
 from services.search import SearchService
-from schemas.search import SearchRequest, SearchResponse
+from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest
 
 router = APIRouter(prefix="/search")
 
@@ -13,12 +13,12 @@ async def search(
     return await search_service.search(payload)
 
 
-@router.get("/vector")
+@router.get("/vector", response_model=SearchResponse)
 async def search_by_vector(
-
+    payload: VectorSearchRequest,
+    search_service: SearchService = Depends(get_search_service),
 ):
-    # vector, top_k, filters
-    pass
+    return await search_service.search_by_vector(payload)
 
 
 @router.post("/hybrid")

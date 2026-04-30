@@ -7,8 +7,8 @@ from services.assistant import LLMService
 
 class QueryService:
 
-    def __init__(self, llm_service: LLMService) -> None:
-        self.llm_service = llm_service
+    # def __init__(self, llm_service: LLMService) -> None:
+    #     self.llm_service = llm_service
 
 
     async def rewrite(self, query, rephrase: bool = False) -> str:

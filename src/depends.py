@@ -5,8 +5,11 @@ from repositories.qdrant import QdrantRepository
 from qdrant_client import AsyncQdrantClient
 from config import settings
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.embeddings import Embeddings
 
 
+def get_embeddings() -> Embeddings:
+    return embedding.embeddings
 
 def get_qdrant_repository() -> QdrantRepository:
     client = AsyncQdrantClient("http://localhost:6333")
@@ -15,22 +18,17 @@ def get_qdrant_repository() -> QdrantRepository:
     )
 
 def get_query_service(
-    llm_service: assistant.LLMService
+    # llm_service: assistant.LLMService = Depends()
 ) -> query.QueryService:
     return query.QueryService(
-        llm_service
+        # llm_service
     )
 
-def get_embedding_service():
-    model = HuggingFaceEmbeddings(
-        model_name=settings.vdb.embedding_model,
-        encode_kwargs={
-            "device": settings.vdb.device,
-            "normalize_embeddings": True,
-        }
-    )
+def get_embedding_service(
+    embeddings: Embeddings = Depends(get_embeddings)
+):
     return embedding.EmbeddingService(
-
+        model=embeddings,
     )
 
 def get_search_service(

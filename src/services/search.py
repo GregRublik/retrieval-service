@@ -4,7 +4,8 @@ from repositories.qdrant import QdrantRepository
 from services.embedding import EmbeddingService
 from services.query import QueryService
 
-from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest
+from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest, SearchResult
+
 
 class SearchService:
 
@@ -24,7 +25,7 @@ class SearchService:
     ) -> SearchResponse:
 
         # 1. Нормализация запроса
-        normalized_query = await self.query_service.rewrite(payload.query)
+        normalized_query = await self.query_service.rewrite(payload.query, rephrase=False)
 
         # 2. Векторизация
         vector = await self.embedding_service.embed_query(normalized_query)
@@ -37,20 +38,36 @@ class SearchService:
                 filters=payload.filters
             )
         )
+
         return SearchResponse(
-            results=results,
+            results=[
+                SearchResult(
+                    id=point.id,
+                    score=point.score,
+                    content=str(point.payload.get("text")),
+                    metadata=point.payload.get("metadata")
+                ) for point in results.points
+            ]
         )
 
     async def search_by_vector(
         self,
-        vector: List[float],
-        top_k: int,
-        filters: Optional[dict] = None,
-    ):
-        return await self.qdrant_repository.search(
-            vector=vector,
-            top_k=top_k,
-            filters=filters,
+        payload: VectorSearchRequest,
+    ) -> SearchResponse:
+
+        results = await self.qdrant_repository.search(
+            payload,
+        )
+
+        return SearchResponse(
+            results=[
+                SearchResult(
+                    id=point.id,
+                    score=point.score,
+                    content=str(point.payload.get("text")),
+                    metadata=point.payload.get("metadata")
+                ) for point in results.points
+            ]
         )
 
     async def hybrid_search(

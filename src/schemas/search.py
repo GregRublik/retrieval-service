@@ -12,7 +12,7 @@ class VectorSearchRequest(BaseSearchRequest):
     vector: list[float]
 
 class SearchResult(BaseModel):
-    id: str
+    id: int
     score: float
     content: str
     metadata: dict
