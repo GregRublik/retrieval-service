@@ -7,6 +7,7 @@ class BaseSearchRequest(BaseModel):
 
 class SearchRequest(BaseSearchRequest):
     query: str
+    collection: str
 
 class VectorSearchRequest(BaseSearchRequest):
     vector: list[float]
@@ -14,7 +15,7 @@ class VectorSearchRequest(BaseSearchRequest):
 class SearchResult(BaseModel):
     id: int
     score: float
-    content: str
+    content: dict
     metadata: dict
 
 class SearchResponse(BaseModel):

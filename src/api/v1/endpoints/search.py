@@ -10,8 +10,9 @@ async def search(
         payload: SearchRequest,
         search_service: SearchService = Depends(get_search_service),
 ):
-    return await search_service.search(payload)
-
+    # try:
+        return await search_service.search(payload)
+    # except Exception as e: qdrant_client.http.exceptions.UnexpectedResponse: # todo не найдена коллекция
 
 @router.get("/vector", response_model=SearchResponse)
 async def search_by_vector(

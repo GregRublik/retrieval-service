@@ -44,7 +44,7 @@ class SearchService:
                 SearchResult(
                     id=point.id,
                     score=point.score,
-                    content=str(point.payload.get("text")),
+                    content=point.payload,
                     metadata=point.payload.get("metadata")
                 ) for point in results.points
             ]
