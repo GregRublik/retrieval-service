@@ -27,7 +27,7 @@ class QdrantRepository:
 
 
         points = await self.client.query_points(
-            collection_name=settings.vdb.collection_name,
+            collection_name=payload.collection,
             query=payload.vector,
             query_filter=query_filter,
             with_payload=True,

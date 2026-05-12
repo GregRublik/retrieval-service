@@ -4,10 +4,10 @@ from typing import Optional
 class BaseSearchRequest(BaseModel):
     top_k: int = 5
     filters: Optional[dict] = None
+    collection: str
 
 class SearchRequest(BaseSearchRequest):
     query: str
-    collection: str
 
 class VectorSearchRequest(BaseSearchRequest):
     vector: list[float]

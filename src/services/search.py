@@ -35,7 +35,8 @@ class SearchService:
             VectorSearchRequest(
                 vector=vector[0],
                 top_k=payload.top_k,
-                filters=payload.filters
+                filters=payload.filters,
+                collection=payload.collection
             )
         )
 
