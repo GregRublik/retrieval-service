@@ -2,24 +2,23 @@ from fastapi import APIRouter, Depends
 from depends import get_search_service
 from services.search import SearchService
 from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest
+from schemas.response import APIResponse, ok
 
 router = APIRouter(prefix="/search")
 
-@router.post("/", response_model=SearchResponse)
+@router.post("/", response_model=APIResponse[SearchResponse])
 async def search(
         payload: SearchRequest,
         search_service: SearchService = Depends(get_search_service),
 ):
-    # try:
-        return await search_service.search(payload)
-    # except Exception as e: qdrant_client.http.exceptions.UnexpectedResponse: # todo не найдена коллекция
+    return ok(await search_service.search(payload))
 
-@router.get("/vector", response_model=SearchResponse)
+@router.get("/vector", response_model=APIResponse[SearchResponse])
 async def search_by_vector(
     payload: VectorSearchRequest,
     search_service: SearchService = Depends(get_search_service),
 ):
-    return await search_service.search_by_vector(payload)
+    return ok(await search_service.search_by_vector(payload))
 
 
 @router.post("/hybrid")
