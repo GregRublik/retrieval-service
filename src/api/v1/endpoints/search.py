@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Depends
-from depends import get_search_service
+
 from services.search import SearchService
 from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest
 from schemas.response import APIResponse, ok
 
+from depends import get_search_service
+
+
 router = APIRouter(prefix="/search")
+
 
 @router.post("/", response_model=APIResponse[SearchResponse])
 async def search(
@@ -12,6 +16,7 @@ async def search(
         search_service: SearchService = Depends(get_search_service),
 ):
     return ok(await search_service.search(payload))
+
 
 @router.get("/vector", response_model=APIResponse[SearchResponse])
 async def search_by_vector(
