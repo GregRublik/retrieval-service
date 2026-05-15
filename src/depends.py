@@ -6,7 +6,7 @@ from qdrant_client import AsyncQdrantClient
 from langchain_core.embeddings import Embeddings
 from aiohttp import ClientSession
 from utils.session_manager import SessionManager
-from services import search, embedding, query, assistant, websearch
+from services import search, embedding, query, assistant, websearch, fetcher, extractor
 
 
 def get_http_session(
@@ -47,7 +47,17 @@ def get_search_service(
         qdrant_repository, embedding_service, query_service
     )
 
+def get_fetch_service(
+    session: ClientSession = Depends(get_http_session),
+):
+    return fetcher.FetchService(session)
+
+def get_extract_service():
+    return extractor.ExtractService()
+
 def get_websearch_service(
     session: ClientSession = Depends(get_http_session),
-) -> websearch.WebsearchService:
-    return websearch.WebsearchService(session)
+    fetcher_service: fetcher.FetchService = Depends(get_fetch_service),
+    extractor_service: extractor.ExtractService = Depends(get_extract_service)
+) -> websearch.WebSearchService:
+    return websearch.WebSearchService(session, fetcher=fetcher_service, extractor=extractor_service)

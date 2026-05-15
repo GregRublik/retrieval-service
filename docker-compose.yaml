@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: .
+    depends_on:
+      searxng:
+        condition: service_started
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    env_file:
+      - .env
+    networks:
+      - rag-microservice
+    volumes:
+      - ./app:/app
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "${SEARXNG_PORT}:8080"
+    environment:
+      - BASE_URL=http://localhost:${SEARXNG_PORT}/
+      - SEARXNG_DISABLE_ENGINES=wikidata,ahmia,torch
+    volumes:
+      - ./src/searxng/settings.yml:/etc/searxng/settings.yml
+    networks:
+      - rag-microservice
+
+networks:
+  rag-microservice:
+    driver: bridge
+
+volumes:
+  searxng-data:
