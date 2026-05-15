@@ -1,11 +1,18 @@
 from fastapi import Depends
 
-from services import search, embedding, query, assistant
+
 from repositories.qdrant import QdrantRepository
 from qdrant_client import AsyncQdrantClient
-from config import settings
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.embeddings import Embeddings
+from aiohttp import ClientSession
+from utils.session_manager import SessionManager
+from services import search, embedding, query, assistant, websearch
+
+
+def get_http_session(
+        http_session: ClientSession = Depends(SessionManager.get_session),
+) -> ClientSession:
+    return http_session
 
 
 def get_embeddings() -> Embeddings:
@@ -39,3 +46,8 @@ def get_search_service(
     return search.SearchService(
         qdrant_repository, embedding_service, query_service
     )
+
+def get_websearch_service(
+    session: ClientSession = Depends(get_http_session),
+) -> websearch.WebsearchService:
+    return websearch.WebsearchService(session)
