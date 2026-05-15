@@ -18,6 +18,8 @@ class ExtractedDocument(BaseModel):
 
 class WebSearchRequest(BaseModel):
     query: str
+    question: str
+    top_k: int
 
 class WebSearchResponse(BaseModel):
     data: List[ExtractedDocument]
