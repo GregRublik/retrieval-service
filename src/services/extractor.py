@@ -10,12 +10,12 @@ class ExtractService:
         for tag in soup(["script", "style", "noscript"]):
             tag.decompose()
 
-        title = soup.title.string if soup.title else ""
-
-        text = " ".join(soup.stripped_strings)
+        content = " ".join(soup.stripped_strings)
 
         return ExtractedDocument(
             url=page.url,
-            title=title,
-            text=text
+            title=page.title,
+            content=content,
+            score=page.score,
+
         )

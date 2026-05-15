@@ -2,18 +2,12 @@ from typing import List, Dict
 
 from services.fetcher import FetchService
 from services.extractor import ExtractService
-from schemas.websearch import WebSearchResponse, WebSearchRequest
+from schemas.websearch import WebSearchResponse, WebSearchRequest, ResultWebSearch
 from aiohttp import ClientSession
 
 from config import settings
 
 from pydantic import BaseModel
-
-class ResultWebSearch(BaseModel):
-    url: str
-    title: str
-    content: str
-    score: float
 
 
 class WebSearchService:
@@ -39,9 +33,9 @@ class WebSearchService:
         ]
 
     @staticmethod
-    async def rerank(list_links: List[ResultWebSearch], top_k: int) -> List[str]:
+    async def rerank(list_links: List[ResultWebSearch], top_k: int) -> List[ResultWebSearch]:
         """Reranker и вернуть только 5 валидных результата"""
-        return [i.url for i in list_links][:top_k]
+        return list_links[:top_k]
 
     async def process(self, payload: WebSearchRequest) -> WebSearchResponse:
         """Process web search data from query"""

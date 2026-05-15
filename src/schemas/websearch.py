@@ -10,16 +10,25 @@ class SearchResult(BaseModel):
 class RawPage(BaseModel):
     url: str
     html: str
+    score: float
+    title: str
 
 class ExtractedDocument(BaseModel):
     url: str
     title: str
-    text: str
+    content: str
+    score: float
 
 class WebSearchRequest(BaseModel):
     query: str
-    question: str
+    # question: str
     top_k: int
 
 class WebSearchResponse(BaseModel):
     data: List[ExtractedDocument]
+
+class ResultWebSearch(BaseModel):
+    url: str
+    title: str
+    content: str
+    score: float
