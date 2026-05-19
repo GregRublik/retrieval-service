@@ -1,6 +1,3 @@
-from typing import List, Optional
-from qdrant_client.http.exceptions import UnexpectedResponse
-
 from repositories.qdrant import QdrantRepository
 from services.embedding import EmbeddingService
 from services.query import QueryService
@@ -21,18 +18,11 @@ class SearchService:
         self.embedding_service = embedding_service
         self.query_service = query_service
 
-    @staticmethod
-    def _is_collection_not_found(error: UnexpectedResponse) -> bool:
-        content = error.content.decode() if isinstance(error.content, bytes) else str(error.content)
-        return "doesn't exist" in content
-
     async def search(
             self,
             payload: SearchRequest,
     ) -> SearchResponse:
         try:
-
-
             normalized_query = await self.query_service.rewrite(payload.query, rephrase=False)
             vector = await self.embedding_service.embed_query(normalized_query)
             results = await self.qdrant_repository.search(
@@ -54,9 +44,7 @@ class SearchService:
                     ) for point in results.points
                 ]
             )
-        except UnexpectedResponse as e:
-            if self._is_collection_not_found(e):
-                raise QdrantCollectionNotFoundException
+        except QdrantCollectionNotFoundException:
             raise
 
     async def search_by_vector(
@@ -67,21 +55,18 @@ class SearchService:
             results = await self.qdrant_repository.search(
                 payload,
             )
-        except UnexpectedResponse as e:
-            if self._is_collection_not_found(e):
-                raise QdrantCollectionNotFoundException
+            return SearchResponse(
+                results=[
+                    SearchResult(
+                        id=point.id,
+                        score=point.score,
+                        content=str(point.payload.get("text")),
+                        metadata=point.payload.get("metadata")
+                    ) for point in results.points
+                ]
+            )
+        except QdrantCollectionNotFoundException:
             raise
-
-        return SearchResponse(
-            results=[
-                SearchResult(
-                    id=point.id,
-                    score=point.score,
-                    content=str(point.payload.get("text")),
-                    metadata=point.payload.get("metadata")
-                ) for point in results.points
-            ]
-        )
 
     async def hybrid_search(
         self,
