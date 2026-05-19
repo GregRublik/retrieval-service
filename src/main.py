@@ -12,8 +12,8 @@ from exception_handlers import api_exception_handler
 app = FastAPI()
 
 app.include_router(search.router, tags=["search"])
-app.include_router(health.router, tags=["health"])
 app.include_router(websearch.router, tags=["websearch"])
+app.include_router(health.router, tags=["health"])
 
 app.add_exception_handler(APIException, api_exception_handler)
 
