@@ -13,7 +13,6 @@ class VDBSettings(BaseSettings):
     port: int
     embedding_model: str
     device: str
-    collection_name: str
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="VDB_", extra="ignore")
 
