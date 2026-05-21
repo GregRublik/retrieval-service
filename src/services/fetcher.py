@@ -1,7 +1,7 @@
 from typing import List
 import asyncio
 
-from playwright.async_api import Browser
+from playwright.async_api import Browser, TimeoutError
 
 from schemas.websearch import RawPage, ResultWebSearch
 
@@ -10,7 +10,7 @@ class FetchService:
     def __init__(self, browser: Browser):
         self.browser = browser
 
-    async def _fetch_one(self, link: ResultWebSearch) -> RawPage:
+    async def _fetch_one(self, link: ResultWebSearch) -> RawPage | None:
         """Получить HTML страницы через Playwright"""
 
         page = await self.browser.new_page()
@@ -30,6 +30,9 @@ class FetchService:
                 score=link.score,
                 title=link.content,
             )
+        except TimeoutError:
+            print(f"TIMEOUT: {link.url}")
+            return None
 
         finally:
             await page.close()
@@ -39,8 +42,8 @@ class FetchService:
         list_links: List[ResultWebSearch]
     ) -> List[RawPage]:
         """Fetch list data from urls"""
-        tasks = [
-            self._fetch_one(link)
-            for link in list_links
-        ]
-        return await asyncio.gather(*tasks)
+
+        tasks = [self._fetch_one(link) for link in list_links]
+        results = await asyncio.gather(*tasks)
+
+        return [r for r in results if r is not None]

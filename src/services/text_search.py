@@ -16,51 +16,76 @@ class TextSearchService:
         a = np.asarray(a).reshape(-1)
         b = np.asarray(b).reshape(-1)
 
-        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+        return np.dot(a, b) / (
+            np.linalg.norm(a) * np.linalg.norm(b)
+        )
 
-    def search_cosine_similarity(self, query_vector, vectors, top_k=5):
-        scores = [
-            (i, self.cosine_similarity(query_vector, v))
-            for i, v in enumerate(vectors)
-        ]
+    @staticmethod
+    def split_text(
+        text: str,
+        chunk_size: int = 1200,
+        overlap: int = 250,
+    ):
+        chunks = []
 
-        scores.sort(key=lambda x: x[1], reverse=True)
+        start = 0
 
-        return scores[:top_k]
+        while start < len(text):
+            end = start + chunk_size
+
+            chunks.append(
+                text[start:end]
+            )
+
+            start += chunk_size - overlap
+
+        return chunks
 
     async def retrieve(
         self,
         query: str,
-        chunks: list[ExtractedDocument],
+        documents: list[ExtractedDocument],
         top_k: int = 5
     ) -> SearchQueryTextResponse:
 
-        query_embedding = await self.embedding_service.embed_query(query)
+        query_embedding = (
+            await self.embedding_service.embed_query(query)
+        )[0]
 
-        chunk_embeddings = await self.embedding_service.embed_queries(
-            [i.content for i in chunks]
-        )
+        semantic_chunks = []
 
-        results = self.search_cosine_similarity(
-            query_embedding,
-            chunk_embeddings,
-            top_k
-        )
+        for doc in documents:
 
-        documents = []
+            text_chunks = self.split_text(doc.content)
 
-        for index, score in results:
-            doc = chunks[index]
-
-            documents.append(
-                ExtractedDocument(
-                    url=doc.url,
-                    title=doc.title,
-                    content=doc.content,
-                    score=float(score),
-                )
+            embeddings = await self.embedding_service.embed_queries(
+                text_chunks
             )
 
+            for chunk_text, embedding in zip(text_chunks, embeddings):
+
+                score = self.cosine_similarity(
+                    query_embedding,
+                    embedding
+                )
+
+                semantic_chunks.append({
+                    "url": doc.url,
+                    "title": doc.title,
+                    "content": chunk_text,
+                    "score": float(score),
+                })
+
+        semantic_chunks.sort(
+            key=lambda x: x["score"],
+            reverse=True
+        )
+
+        top_results = semantic_chunks[:top_k]
+
         return SearchQueryTextResponse(
-            results=documents
+            results=[
+                ExtractedDocument(**item)
+                for item in top_results
+            ]
         )

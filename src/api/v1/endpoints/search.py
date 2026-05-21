@@ -25,7 +25,7 @@ async def search(
             error=e.detail
         )
 
-@router.post("/semantic_in_texts")
+@router.post("/semantic_in_texts/")
 async def semantic_search_in_texts(
     payload: SearchQueryTextRequest,
     search_service: SearchService = Depends(get_search_service),
@@ -36,7 +36,7 @@ async def semantic_search_in_texts(
         pass
 
 
-@router.get("/vector", response_model=APIResponse[SearchResponse])
+@router.get("/vector/", response_model=APIResponse[SearchResponse])
 async def search_by_vector(
     payload: VectorSearchRequest,
     search_service: SearchService = Depends(get_search_service),
@@ -49,7 +49,7 @@ async def search_by_vector(
             error=e.detail
         )
 
-@router.post("/hybrid")
+@router.post("/hybrid/")
 async def hybrid_search(
 
 ):
@@ -57,7 +57,7 @@ async def hybrid_search(
     pass
 
 
-@router.get("/with_scope")
+@router.get("/with_scope/")
 async def search_with_scope(
 
 ):
