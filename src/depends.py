@@ -43,13 +43,19 @@ def get_embedding_service(
         model=embeddings,
     )
 
+def get_textsearch_service(
+    embedding_service: embedding.EmbeddingService = Depends(get_embedding_service),
+):
+    return TextSearchService(embedding_service)
+
 def get_search_service(
     qdrant_repository: QdrantRepository = Depends(get_qdrant_repository),
     embedding_service: embedding.EmbeddingService = Depends(get_embedding_service),
     query_service: query.QueryService = Depends(get_query_service),
+    text_search_service: TextSearchService = Depends(get_textsearch_service),
 ) -> search.SearchService:
     return search.SearchService(
-        qdrant_repository, embedding_service, query_service
+        qdrant_repository, embedding_service, query_service, text_search_service
     )
 
 def get_browser(request: Request):
@@ -64,22 +70,16 @@ async def get_fetch_service(
 def get_extract_service():
     return extractor.ExtractService()
 
-def get_textsearch_service(
-    embedding_service: embedding.EmbeddingService = Depends(get_embedding_service),
-):
-    return TextSearchService(
-        embedding_service,
-    )
 
 def get_websearch_service(
     session: ClientSession = Depends(get_http_session),
     fetcher_service: fetcher.FetchService = Depends(get_fetch_service),
     extractor_service: extractor.ExtractService = Depends(get_extract_service),
-    reranker_service: TextSearchService = Depends(get_textsearch_service),
+    text_search_service: TextSearchService = Depends(get_textsearch_service),
 ) -> websearch.WebSearchService:
     return websearch.WebSearchService(
         session,
         fetcher=fetcher_service,
         extractor=extractor_service,
-        reranker=reranker_service,
+        text_search=text_search_service,
     )

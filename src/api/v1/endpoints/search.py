@@ -25,7 +25,7 @@ async def search(
             error=e.detail
         )
 
-@router.get("/semantic_in_texts")
+@router.post("/semantic_in_texts")
 async def semantic_search_in_texts(
     payload: SearchQueryTextRequest,
     search_service: SearchService = Depends(get_search_service),

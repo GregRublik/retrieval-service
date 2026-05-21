@@ -24,7 +24,7 @@ class SearchQueryTextRequest(BaseModel):
     top_k: int = 5
 
 class SearchQueryTextResponse(BaseModel):
-    results: list[SearchResult]
+    results: list[ExtractedDocument]
 
 class VectorSearchRequest(BaseSearchRequest):
     vector: list[float]

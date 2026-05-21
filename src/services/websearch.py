@@ -45,7 +45,7 @@ class WebSearchService:
             ) for data in response.get("results")
         ]
 
-    async def process(self, payload: WebSearchRequest):
+    async def process(self, payload: WebSearchRequest) -> WebSearchResponse:
         """Process web search data from query"""
         # 1. search urls
         search_results = await self.get_urls(payload.query)
