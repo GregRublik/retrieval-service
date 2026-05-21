@@ -16,8 +16,8 @@ Service responsible for:
 # Directory Structure
 - `src/`: sources root 
 - `src/api/v1/endpoints`: fastapi routers for endpoints
-- `src/services`: scripts services layers 
-- `src/repositories`: scripts repositories  layers
+- `src/services`: scripts service layer
+- `src/repositories`: scripts repository layer
 - `src/depends.py`: depends
 - `src/config.py`: pydantic settings
 
@@ -32,6 +32,9 @@ Service responsible for:
 
 # Environment Variables
 - `.env`
+
+# Virtual environment
+- use `uv`
 
 # Running Locally
 - `python src/main.py`

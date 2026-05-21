@@ -2,6 +2,7 @@ from typing import List, Dict
 
 from services.fetcher import FetchService
 from services.extractor import ExtractService
+from services.reranker import RerankerService
 from schemas.websearch import WebSearchResponse, WebSearchRequest, ResultWebSearch
 from aiohttp import ClientSession
 
@@ -32,15 +33,10 @@ class WebSearchService:
             ) for data in response.get("results")
         ]
 
-    @staticmethod
-    async def rerank(list_links: List[ResultWebSearch], top_k: int) -> List[ResultWebSearch]:
-        """Reranker и вернуть только 5 валидных результата"""
-        return list_links[:top_k]
-
     async def process(self, payload: WebSearchRequest) -> WebSearchResponse:
         """Process web search data from query"""
         search_results = await self.get_urls(payload.query)
-        reranked_urls = await self.rerank(search_results, payload.top_k)
+        reranked_urls = RerankerService.rerank(search_results, payload.top_k)
 
         pages = await self.fetcher.fetch_all(reranked_urls)
 
