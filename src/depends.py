@@ -1,12 +1,17 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 
 
 from repositories.qdrant import QdrantRepository
 from qdrant_client import AsyncQdrantClient
 from langchain_core.embeddings import Embeddings
 from aiohttp import ClientSession
+
+from services.text_search import TextSearchService
 from utils.session_manager import SessionManager
-from services import search, embedding, query, assistant, websearch, fetcher, extractor, reranker
+from services import search, embedding, query, assistant, websearch, fetcher, extractor
+from playwright.async_api import (
+    async_playwright, Browser
+)
 
 
 def get_http_session(
@@ -47,26 +52,34 @@ def get_search_service(
         qdrant_repository, embedding_service, query_service
     )
 
-def get_fetch_service(
-    session: ClientSession = Depends(get_http_session),
+def get_browser(request: Request):
+    return request.app.state.browser
+
+async def get_fetch_service(
+        browser: Browser = Depends(get_browser),
 ):
-    return fetcher.FetchService(session)
+    return fetcher.FetchService(browser)
+
 
 def get_extract_service():
     return extractor.ExtractService()
 
-def get_reranker_service():
-    return reranker.RerankerService()
+def get_textsearch_service(
+    embedding_service: embedding.EmbeddingService = Depends(get_embedding_service),
+):
+    return TextSearchService(
+        embedding_service,
+    )
 
 def get_websearch_service(
     session: ClientSession = Depends(get_http_session),
     fetcher_service: fetcher.FetchService = Depends(get_fetch_service),
     extractor_service: extractor.ExtractService = Depends(get_extract_service),
-    reranker_service: reranker.RerankerService = Depends(get_reranker_service)
+    reranker_service: TextSearchService = Depends(get_textsearch_service),
 ) -> websearch.WebSearchService:
     return websearch.WebSearchService(
         session,
         fetcher=fetcher_service,
         extractor=extractor_service,
-        reranker=reranker_service
+        reranker=reranker_service,
     )

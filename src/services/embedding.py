@@ -20,3 +20,9 @@ class EmbeddingService:
 
     async def embed_query(self, query: str) -> list[list[float]]:
         return await self.model.aembed_documents([query])
+
+    async def embed_queries(self, queries: list[str]) -> list[list[list[float]]]:
+        vectors = []
+        for query in queries:
+            vectors.append(await self.embed_query(query))
+        return vectors

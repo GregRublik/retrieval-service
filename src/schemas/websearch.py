@@ -21,7 +21,7 @@ class ExtractedDocument(BaseModel):
 
 class WebSearchRequest(BaseModel):
     query: str
-    question: Optional[str] = None
+    question: str
     top_k: int
 
 class WebSearchResponse(BaseModel):

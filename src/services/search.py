@@ -2,8 +2,10 @@ from repositories.qdrant import QdrantRepository
 from services.embedding import EmbeddingService
 from services.query import QueryService
 
-from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest, SearchResult
+from schemas.search import SearchRequest, SearchResponse, VectorSearchRequest, SearchResult, SearchQueryTextRequest, \
+    SearchQueryTextResponse
 from exceptions import QdrantCollectionNotFoundException
+from services.text_search import TextSearchService
 
 
 class SearchService:
@@ -13,10 +15,12 @@ class SearchService:
         qdrant_repository: QdrantRepository,
         embedding_service: EmbeddingService,
         query_service: QueryService,
+        text_search_service: TextSearchService,
     ):
         self.qdrant_repository = qdrant_repository
         self.embedding_service = embedding_service
         self.query_service = query_service
+        self.text_search_service = text_search_service
 
     async def search(
             self,
@@ -68,39 +72,49 @@ class SearchService:
         except QdrantCollectionNotFoundException:
             raise
 
-    async def hybrid_search(
+    async def search_by_query_in_text(
         self,
-        query: str,
-        top_k: int,
-        alpha: float = 0.5,
-    ):
-        query = await self.query_service.rewrite(query)
+        payload: SearchQueryTextRequest,
+    ) -> SearchQueryTextResponse:
+        try:
+            return await self.text_search_service.retrieve(payload.query, payload.documents, payload.top_k)
 
-        vector = await self.embedding_service.embed_query(query)
+        finally:
+            pass
 
-        results = await self.qdrant_repository.hybrid_search(
-            query=query,
-            vector=vector,
-            top_k=top_k,
-            alpha=alpha,
-        )
-
-        return results
-
-    async def search_with_scope(
-        self,
-        query: str,
-        scope: dict,
-        top_k: int = 5,
-    ):
-        query = await self.query_service.rewrite(query)
-
-        vector = await self.embedding_service.embed_query(query)
-
-        filters = self._build_scope_filter(scope)
-
-        return await self.qdrant_repository.search(
-            vector=vector,
-            top_k=top_k,
-            filters=filters,
-        )
+    # async def hybrid_search(
+    #     self,
+    #     query: str,
+    #     top_k: int,
+    #     alpha: float = 0.5,
+    # ):
+    #     query = await self.query_service.rewrite(query)
+    #
+    #     vector = await self.embedding_service.embed_query(query)
+    #
+    #     results = await self.qdrant_repository.hybrid_search(
+    #         query=query,
+    #         vector=vector,
+    #         top_k=top_k,
+    #         alpha=alpha,
+    #     )
+    #
+    #     return results
+    #
+    # async def search_with_scope(
+    #     self,
+    #     query: str,
+    #     scope: dict,
+    #     top_k: int = 5,
+    # ):
+    #     query = await self.query_service.rewrite(query)
+    #
+    #     vector = await self.embedding_service.embed_query(query)
+    #
+    #     filters = self._build_scope_filter(scope)
+    #
+    #     return await self.qdrant_repository.search(
+    #         vector=vector,
+    #         top_k=top_k,
+    #         filters=filters,
+    #     )

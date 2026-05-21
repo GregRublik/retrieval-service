@@ -1,23 +1,34 @@
-from typing import List, Dict
+from typing import List
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from aiohttp import ClientSession
 
 from services.fetcher import FetchService
 from services.extractor import ExtractService
-from services.reranker import RerankerService
 from schemas.websearch import WebSearchResponse, WebSearchRequest, ResultWebSearch
-from aiohttp import ClientSession
+
 
 from config import settings
-
-from pydantic import BaseModel
+from services.text_search import TextSearchService
 
 
 class WebSearchService:
 
-    def __init__(self, session: ClientSession, fetcher: FetchService, extractor: ExtractService, reranker: RerankerService):
+    def __init__(
+        self,
+        session: ClientSession,
+        fetcher: FetchService,
+        extractor: ExtractService,
+        text_search: TextSearchService,
+    ):
         self.session = session
         self.fetcher = fetcher
         self.extractor = extractor
-        self.reranker = RerankerService
+        self.text_search = text_search
+        self.chunker = RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=200,
+        )
 
     async def get_urls(self, query: str) -> List[ResultWebSearch]:
         """Get list links of web search"""
@@ -38,47 +49,14 @@ class WebSearchService:
         """Process web search data from query"""
         # 1. search urls
         search_results = await self.get_urls(payload.query)
-        # 2. rerank urls
-        reranked_urls = self.reranker.rerank(
-            search_results,
-            payload.top_k
-        )
-        # 3. fetch pages
-        pages = await self.fetcher.fetch_all(reranked_urls)
-
-        # 4. extract text
+        # 2. fetch pages
+        pages = await self.fetcher.fetch_all(search_results)
+        # 3. extract text
         documents = [
             self.extractor.extract(page)
             for page in pages
         ]
 
-        # 5. chunking
-        chunks = []
-
-        for doc in documents:
-            print(doc)
-            break
-            # parts = self.chunker.split_text(doc.text)
-            #
-            # for part in parts:
-            #     chunks.append(
-            #         Chunk(
-            #             text=part,
-            #             source_url=doc.url,
-            #             title=doc.title,
-            #         )
-            #     )
-
-        # # 6. semantic search
-        # relevant_chunks = await self.semantic_search.search(
-        #     query=payload.query,
-        #     chunks=chunks,
-        #     top_k=payload.top_k
-        # )
-
-        # return relevant_chunks
-
         return WebSearchResponse(
             data=documents
         )
-

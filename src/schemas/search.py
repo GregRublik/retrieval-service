@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import Optional
 
+from schemas.websearch import ExtractedDocument
+
+
 class BaseSearchRequest(BaseModel):
     top_k: int = 5
     filters: Optional[dict] = None
@@ -9,14 +12,22 @@ class BaseSearchRequest(BaseModel):
 class SearchRequest(BaseSearchRequest):
     query: str
 
-class VectorSearchRequest(BaseSearchRequest):
-    vector: list[float]
-
 class SearchResult(BaseModel):
     id: int
     score: float
     content: dict
     metadata: dict
+
+class SearchQueryTextRequest(BaseModel):
+    query: str
+    documents: list[ExtractedDocument]
+    top_k: int = 5
+
+class SearchQueryTextResponse(BaseModel):
+    results: list[SearchResult]
+
+class VectorSearchRequest(BaseSearchRequest):
+    vector: list[float]
 
 class SearchResponse(BaseModel):
     results: list[SearchResult]

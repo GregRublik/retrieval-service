@@ -1,23 +1,46 @@
 from typing import List
-from aiohttp import ClientSession, ClientTimeout
 import asyncio
+
+from playwright.async_api import Browser
 
 from schemas.websearch import RawPage, ResultWebSearch
 
+
 class FetchService:
-    def __init__(self, session: ClientSession):
-        self.session = session
+    def __init__(self, browser: Browser):
+        self.browser = browser
 
-    async def fetch_one(self, link: ResultWebSearch) -> RawPage:
-        """Fetch (получить) данные с web страницы"""
-        r = await self.session.get(link.url, timeout=ClientTimeout(total=30))
-        # r.raise_for_status()
-        html = await r.text()
-        return RawPage(url=link.url, html=html, score=link.score, title=link.content)
+    async def _fetch_one(self, link: ResultWebSearch) -> RawPage:
+        """Получить HTML страницы через Playwright"""
 
-    async def fetch_all(self, list_links: List[ResultWebSearch]) -> List[RawPage]:
+        page = await self.browser.new_page()
+
+        try:
+            await page.goto(
+                link.url,
+                timeout=30_000,
+                wait_until="domcontentloaded",
+            )
+
+            html = await page.content()
+
+            return RawPage(
+                url=link.url,
+                html=html,
+                score=link.score,
+                title=link.content,
+            )
+
+        finally:
+            await page.close()
+
+    async def fetch_all(
+        self,
+        list_links: List[ResultWebSearch]
+    ) -> List[RawPage]:
         """Fetch list data from urls"""
-        tasks = [self.fetch_one(link) for link in list_links]
-        raw_pages = await asyncio.gather(*tasks)
-
-        return raw_pages
+        tasks = [
+            self._fetch_one(link)
+            for link in list_links
+        ]
+        return await asyncio.gather(*tasks)
