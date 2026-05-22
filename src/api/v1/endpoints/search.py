@@ -36,7 +36,7 @@ async def semantic_search_in_texts(
         pass
 
 
-@router.get("/vector/", response_model=APIResponse[SearchResponse])
+@router.post("/vector/", response_model=APIResponse[SearchResponse])
 async def search_by_vector(
     payload: VectorSearchRequest,
     search_service: SearchService = Depends(get_search_service),

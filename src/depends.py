@@ -8,10 +8,8 @@ from aiohttp import ClientSession
 
 from services.text_search import TextSearchService
 from utils.session_manager import SessionManager
-from services import search, embedding, query, assistant, websearch, fetcher, extractor
-from playwright.async_api import (
-    async_playwright, Browser
-)
+from services import search, embedding, query, websearch, fetcher, extractor
+from playwright.async_api import Browser
 
 
 def get_http_session(
@@ -29,12 +27,8 @@ def get_qdrant_repository() -> QdrantRepository:
         client
     )
 
-def get_query_service(
-    # llm_service: assistant.LLMService = Depends()
-) -> query.QueryService:
-    return query.QueryService(
-        # llm_service
-    )
+def get_query_service() -> query.QueryService:
+    return query.QueryService()
 
 def get_embedding_service(
     embeddings: Embeddings = Depends(get_embeddings)

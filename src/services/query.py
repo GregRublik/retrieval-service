@@ -2,7 +2,6 @@ import unicodedata
 import re
 
 from services.embedding import EmbeddingService
-from services.assistant import LLMService
 
 
 class QueryService:

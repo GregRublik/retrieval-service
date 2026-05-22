@@ -34,7 +34,7 @@ Service responsible for:
 - `.env`
 
 # Virtual environment
-- use `uv`
+- use `uv` всегда используй uv для работы с зависимостями, устанавливай зависимости через uv add
 
 # Running Locally
 - `python src/main.py`
