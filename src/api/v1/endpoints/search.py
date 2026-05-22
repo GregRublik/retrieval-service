@@ -12,7 +12,7 @@ from depends import get_search_service
 router = APIRouter(prefix="/search")
 
 
-@router.post("/", response_model=APIResponse[SearchResponse])
+@router.post("/query/", response_model=APIResponse[SearchResponse])
 async def search(
         payload: SearchRequest,
         search_service: SearchService = Depends(get_search_service),

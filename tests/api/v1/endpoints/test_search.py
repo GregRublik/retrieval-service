@@ -21,7 +21,7 @@ class TestSearchEndpoint:
             "collection": "my_collection",
         }
 
-        response = client.post("/search/", json=payload)
+        response = client.post("/search/query/", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -39,7 +39,7 @@ class TestSearchEndpoint:
             "collection": "nonexistent",
         }
 
-        response = client.post("/search/", json=payload)
+        response = client.post("/search/query/", json=payload)
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         data = response.json()
@@ -55,7 +55,7 @@ class TestSearchEndpoint:
             "filters": {"source": "news"},
         }
 
-        response = client.post("/search/", json=payload)
+        response = client.post("/search/query/", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
         call_args, _ = mock_search_service.search.await_args
@@ -69,7 +69,7 @@ class TestSearchEndpoint:
             "collection": "my_collection",
         }
 
-        response = client.post("/search/", json=payload)
+        response = client.post("/search/query/", json=payload)
 
         assert response.status_code == status.HTTP_200_OK
         call_args, _ = mock_search_service.search.await_args
