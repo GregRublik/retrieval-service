@@ -1,7 +1,7 @@
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 from qdrant_client.models import QueryResponse
-from qdrant_client.http.exceptions import UnexpectedResponse
+from qdrant_client.http.exceptions import UnexpectedResponse, ResponseHandlingException
 
 from schemas.search import VectorSearchRequest
 
@@ -17,6 +17,13 @@ class QdrantRepository:
     def _is_collection_not_found(error: UnexpectedResponse) -> bool:
         content = error.content.decode() if isinstance(error.content, bytes) else str(error.content)
         return "doesn't exist" in content
+
+    async def ping(self) -> bool:
+        try:
+            await self.client.get_collections()
+            return True
+        except ResponseHandlingException:
+            return False
 
     async def search(self, payload: VectorSearchRequest) -> QueryResponse:
 

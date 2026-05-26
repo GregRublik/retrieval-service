@@ -1,5 +1,4 @@
 # Retrieval Service
-
 Service responsible for:
 - vector db search
 - web search 
@@ -12,6 +11,9 @@ Service responsible for:
 - qdrant-client
 - LangChain
 
+# Architecture
+- Clean Architecture (Onion)
+- HTTP -> ROUTING -> SERVICE -> REPOSITORY
 
 # Directory Structure
 - `src/`: sources root 

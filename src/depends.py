@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 from services.text_search import TextSearchService
 from utils.session_manager import SessionManager
 from services import search, embedding, query, websearch, fetcher, extractor
+from services.health import HealthService
 from playwright.async_api import Browser
 
 
@@ -63,6 +64,12 @@ async def get_fetch_service(
 
 def get_extract_service():
     return extractor.ExtractService()
+
+
+def get_health_service(
+    qdrant_repository: QdrantRepository = Depends(get_qdrant_repository),
+) -> HealthService:
+    return HealthService(qdrant_repository)
 
 
 def get_websearch_service(
