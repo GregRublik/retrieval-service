@@ -25,8 +25,10 @@ async def readiness(
     health_service: HealthService = Depends(get_health_service),
 ):
     qdrant_healthy = await health_service.check_qdrant()
+    searxng_healthy = await health_service.check_searxng()
     dependencies = [
         DependencyCheck(name="qdrant", healthy=qdrant_healthy),
+        DependencyCheck(name="searxng", healthy=searxng_healthy),
     ]
     status = Status.ready if all(d.healthy for d in dependencies) else Status.degraded
     return ok(

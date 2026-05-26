@@ -2,12 +2,14 @@ from fastapi import Depends, Request
 
 
 from repositories.qdrant import QdrantRepository
+from repositories.searxng import SearxngRepository
 from qdrant_client import AsyncQdrantClient
 from langchain_core.embeddings import Embeddings
 from aiohttp import ClientSession
 
 from services.text_search import TextSearchService
 from utils.session_manager import SessionManager
+from config import settings
 from services import search, embedding, query, websearch, fetcher, extractor
 from services.health import HealthService
 from playwright.async_api import Browser
@@ -66,10 +68,21 @@ def get_extract_service():
     return extractor.ExtractService()
 
 
+def get_searxng_repository(
+    session: ClientSession = Depends(get_http_session),
+) -> SearxngRepository:
+    return SearxngRepository(
+        session=session,
+        host=settings.searxng.host,
+        port=settings.searxng.port,
+    )
+
+
 def get_health_service(
     qdrant_repository: QdrantRepository = Depends(get_qdrant_repository),
+    searxng_repository: SearxngRepository = Depends(get_searxng_repository),
 ) -> HealthService:
-    return HealthService(qdrant_repository)
+    return HealthService(qdrant_repository, searxng_repository)
 
 
 def get_websearch_service(
