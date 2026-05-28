@@ -3,12 +3,12 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from config import settings
 
 embeddings = HuggingFaceEmbeddings(
-        model_name=settings.vdb.embedding_model,
-        encode_kwargs={
-            "device": settings.vdb.device,
-            "normalize_embeddings": True,
-        }
-    )
+    model_name=settings.vdb.embedding_model,
+    encode_kwargs={
+        "device": settings.vdb.device,
+        "normalize_embeddings": True,
+    }
+)
 
 class EmbeddingService:
 

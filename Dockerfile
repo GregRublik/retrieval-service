@@ -13,6 +13,10 @@ COPY pyproject.toml .
 # Устанавливаем зависимости напрямую (без виртуального окружения в контейнере)
 RUN uv pip install --system .
 
+# Установка playwright
+RUN playwright install-deps chromium
+RUN playwright install chromium
+
 # Копируем остальные файлы проекта
 COPY . .
 
