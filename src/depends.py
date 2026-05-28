@@ -1,10 +1,8 @@
 from fastapi import Depends, Request
 
-
 from repositories.qdrant import QdrantRepository
 from repositories.searxng import SearxngRepository
 from qdrant_client import AsyncQdrantClient
-from langchain_core.embeddings import Embeddings
 from aiohttp import ClientSession
 
 from services.text_search import TextSearchService
@@ -20,10 +18,6 @@ def get_http_session(
 ) -> ClientSession:
     return http_session
 
-
-def get_embeddings() -> Embeddings:
-    return embedding.embeddings
-
 def get_qdrant_repository() -> QdrantRepository:
     client = AsyncQdrantClient("http://localhost:6333")
     return QdrantRepository(
@@ -34,10 +28,8 @@ def get_query_service() -> query.QueryService:
     return query.QueryService()
 
 def get_embedding_service(
-    embeddings: Embeddings = Depends(get_embeddings)
 ):
     return embedding.EmbeddingService(
-        model=embeddings,
     )
 
 def get_textsearch_service(
