@@ -19,7 +19,10 @@ def get_http_session(
     return http_session
 
 def get_qdrant_repository() -> QdrantRepository:
-    client = AsyncQdrantClient("http://localhost:6333")
+    client = AsyncQdrantClient(
+        url=f"http://{settings.vdb.host}:{settings.vdb.port}",
+        api_key=settings.vdb.api_key,
+    )
     return QdrantRepository(
         client
     )
